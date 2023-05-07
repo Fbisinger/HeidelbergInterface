@@ -9,8 +9,7 @@ jobs:
     strategy:
       matrix:
         fqbn:
-          - "esp32:esp32:esp32"
-          - "esp8266:esp8266:esp8266"
+          - "esp32:esp32:esp32doit-devkit-v1"
     steps:
       - uses: actions/checkout@v2
 

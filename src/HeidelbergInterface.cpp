@@ -8,23 +8,24 @@
 #include "HeidelbergInterface.h"
 #include "ModbusMaster.h"
 
-ModbusMaster modbus;
-
 HeidelbergInterface::HeidelbergInterface()
 {
   //Default Values
   _commAllowed = true;
-  _updateRate = 60000;
-  _lastMsg = millis();
+  _updateRate = 30000;
+  _lastMsg = 0;
+  _serialDebug = &Serial;
 
 }
 
-void HeidelbergInterface::begin(SoftwareSerial serial, int slaveid, int pinDE)
+void HeidelbergInterface::begin(Stream &serial, int slaveid, int pinDE)
 {
   _pinDE = pinDE;
-  modbus.begin(slaveid, *serial);
-  modbus.preTransmission(preTransmission);
-  modbus.postTransmission(postTransmission);
+  _modbus.begin(slaveid, serial);
+
+  static HeidelbergInterface* obj = this;
+  _modbus.preTransmission([]() { obj->preTransmission();}); // external callback
+  _modbus.postTransmission([]() { obj->preTransmission();});
 }
 
 // Enable Modbus communication, only necessary if communication was disabled beforehand
@@ -55,8 +56,30 @@ void HeidelbergInterface::mbloop()
 {
   if ((millis() > _lastMsg + _updateRate) && _commAllowed){
     //do mb stuff
-    if(/*sucess*/){
+    _modbusBuffer = _modbus.readInputRegisters(4, 15);
+    
+    if (_modbusBuffer == _modbus.ku8MBSuccess)   {
+      _modbusdataheidelberg.register_layout = _modbus.getResponseBuffer(0);
+      _modbusdataheidelberg.charging_state = _modbus.getResponseBuffer(1);
+      _modbusdataheidelberg.currentL1 = _modbus.getResponseBuffer(2) * 0.1;
+      _modbusdataheidelberg.currentL2 = _modbus.getResponseBuffer(3) * 0.1;
+      _modbusdataheidelberg.currentL3 = _modbus.getResponseBuffer(4) * 0.1;
+      _modbusdataheidelberg.pcb_temp = _modbus.getResponseBuffer(5) / 10;
+      _modbusdataheidelberg.voltageL1 = _modbus.getResponseBuffer(6);
+      _modbusdataheidelberg.voltageL2 = _modbus.getResponseBuffer(7);
+      _modbusdataheidelberg.voltageL3 = _modbus.getResponseBuffer(8);
+      _modbusdataheidelberg.extern_lock = _modbus.getResponseBuffer(9);
+      _modbusdataheidelberg.power = _modbus.getResponseBuffer(10);
+      _modbusdataheidelberg.energy_power_on = _modbus.getResponseBuffer(11) << 16 || _modbus.getResponseBuffer(12); // combined from two separate registers
+      _modbusdataheidelberg.energy_since_installation = _modbus.getResponseBuffer(13) << 16 || _modbus.getResponseBuffer(14); // combined from two separate registers
+      _serialDebug->println("[DEBUG] Buffer update sucessful");
+      // Update message time
       _lastMsg = millis();
+    }
+
+    else{
+        _serialDebug->print("[ERROR] Failed reading Input registers, result code: ");
+        _serialDebug->print(_modbusBuffer);
     }
 
     //Otherwise retry in next loop iteration
@@ -165,7 +188,7 @@ int HeidelbergInterface::getWatchDogTimeout()
 }
 
 // Set ModBus-Master WatchDog Timeout in ms
-int HeidelbergInterface::setWatchdogTimeout(int timeout)
+bool HeidelbergInterface::setWatchdogTimeout(int timeout)
 {
   return 0;
 }
@@ -177,7 +200,7 @@ int HeidelbergInterface::getMaxCurr()
 }
 
 // Set software configured maximal current in A [0; 6 to 16]
-int HeidelbergInterface::setMaxCurr(int current)
+bool HeidelbergInterface::setMaxCurr(int current)
 {
   return 0;
 }
@@ -189,15 +212,15 @@ int HeidelbergInterface::getFsCurr()
 }
 
 // Set FailSafe Current configuration (in case loss of Modbus communication) in A [0; 6 to 16]
-int HeidelbergInterface::setFsCurr(int current)
+bool HeidelbergInterface::setFsCurr(int current)
 {
-  return 0;
+  _modbus.setTransmitBuffer(0, current);
+  uint8_t _write_response = _modbus.writeMultipleRegisters(262, 1);
+  if (_write_response == modbus.ku8MBSuccess) {
+    return true;
+  }
+  return false;
 }
-
-
-
-
-
 
 void HeidelbergInterface::preTransmission()
 {

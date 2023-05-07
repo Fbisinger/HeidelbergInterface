@@ -5,13 +5,13 @@
 #define HeidelbergInterface_h
 
 #include "Arduino.h"
-#include "SoftwareSerial.h"
+#include "ModbusMaster.h"
 
 class HeidelbergInterface
 {
   public:
     HeidelbergInterface();
-    void begin(SoftwareSerial serial, int id, int pinDE);
+    void begin(Stream &serial, int id, int pinDE);
     void enableCom();
     void disableCom();
     bool setUpdateRate(int timespan);
@@ -39,25 +39,28 @@ class HeidelbergInterface
     int getEnergyInst();
     int getHwMaxCurr();
     int getHwMinCurr();
-    
+
 
     int getWatchDogTimeout();
-    int setWatchdogTimeout(int timeout);
+    bool setWatchdogTimeout(int timeout);
     int getMaxCurr();
-    int setMaxCurr(int current);
+    bool setMaxCurr(int current);
     int getFsCurr();
-    int setFsCurr(int current);
+    bool setFsCurr(int current);
 
   private:
     void preTransmission();
-    void postTransmission()
+    void postTransmission();
     int _slaveID;
     int _mbSpeed;
     int _mbTimeout;
     int _pinDE;
+    Stream *_serialDebug;
     bool _commAllowed;
     int _updateRate;
     uint32_t _lastMsg;
+    uint8_t _modbusBuffer;
+    ModbusMaster _modbus;
 
     struct modbus_registers_heidelberg
     {
@@ -69,6 +72,7 @@ class HeidelbergInterface
       bool extern_lock;
       int power;
       int energy_power_on, energy_since_installation;
+      
       int hw_max_current, hw_min_current;
       int watchdog;
       int max_current, fs_current;

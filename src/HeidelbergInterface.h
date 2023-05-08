@@ -35,8 +35,8 @@ class HeidelbergInterface
     bool getExtLockState();
 
     int getPower();
-    int getEnergyPwOn();
-    int getEnergyInst();
+    uint32_t getEnergyPwOn();
+    uint32_t getEnergyInst();
     int getHwMaxCurr();
     int getHwMinCurr();
 
@@ -71,7 +71,8 @@ class HeidelbergInterface
       float currentL1, currentL2, currentL3;
       bool extern_lock;
       int power;
-      int energy_power_on, energy_since_installation;
+      
+      uint32_t energy_power_on, energy_since_installation;
       
       int hw_max_current, hw_min_current;
       int watchdog;

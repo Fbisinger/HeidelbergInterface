@@ -6,13 +6,15 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-HeidelbergInterface KEYWORD1
+HeidelbergInterface	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 
-begin   KEYWORD2
+begin	KEYWORD2
+getRegLayoutVersion	KEYWORD2
+getLastUpdateTime	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

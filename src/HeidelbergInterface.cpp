@@ -21,11 +21,12 @@ HeidelbergInterface::HeidelbergInterface()
 void HeidelbergInterface::begin(Stream &serial, int slaveid, int pinDE)
 {
   _pinDE = pinDE;
+  pinMode(_pinDE, OUTPUT);
   _modbus.begin(slaveid, serial);
 
   static HeidelbergInterface* obj = this;
   _modbus.preTransmission([]() { obj->preTransmission();}); // external callback
-  _modbus.postTransmission([]() { obj->preTransmission();});
+  _modbus.postTransmission([]() { obj->postTransmission();});
 }
 
 // Enable Modbus communication, only necessary if communication was disabled beforehand
@@ -58,6 +59,8 @@ void HeidelbergInterface::mbloop()
     //do mb stuff
     _modbusBuffer = _modbus.readInputRegisters(4, 15);
     
+    delay(1000);
+
     if (_modbusBuffer == _modbus.ku8MBSuccess)   {
       _modbusdataheidelberg.register_layout = _modbus.getResponseBuffer(0);
       _modbusdataheidelberg.charging_state = _modbus.getResponseBuffer(1);
@@ -70,8 +73,16 @@ void HeidelbergInterface::mbloop()
       _modbusdataheidelberg.voltageL3 = _modbus.getResponseBuffer(8);
       _modbusdataheidelberg.extern_lock = _modbus.getResponseBuffer(9);
       _modbusdataheidelberg.power = _modbus.getResponseBuffer(10);
-      _modbusdataheidelberg.energy_power_on = _modbus.getResponseBuffer(11) << 16 || _modbus.getResponseBuffer(12); // combined from two separate registers
-      _modbusdataheidelberg.energy_since_installation = _modbus.getResponseBuffer(13) << 16 || _modbus.getResponseBuffer(14); // combined from two separate registers
+      _modbusdataheidelberg.energy_power_on = _modbus.getResponseBuffer(11) << 16 | _modbus.getResponseBuffer(12); // combined from two separate registers
+      _modbusdataheidelberg.energy_since_installation = _modbus.getResponseBuffer(13) << 16 | _modbus.getResponseBuffer(14); // combined from two separate registers
+      _serialDebug->print("[DEBUG] Energy pwron High byte, Low byte");
+      _serialDebug->print(_modbus.getResponseBuffer(11));
+      _serialDebug->print(",");
+      _serialDebug->println(_modbus.getResponseBuffer(12));
+      _serialDebug->print("[DEBUG] Energy inst High byte, Low byte");
+      _serialDebug->print(_modbus.getResponseBuffer(13));
+      _serialDebug->print(",");
+      _serialDebug->println(_modbus.getResponseBuffer(14));
       _serialDebug->println("[DEBUG] Buffer update sucessful");
       // Update message time
       _lastMsg = millis();
@@ -158,13 +169,13 @@ int HeidelbergInterface::getPower()
 }
 
 // Energy since PowerOn in VAh
-int HeidelbergInterface::getEnergyPwOn()
+uint32_t HeidelbergInterface::getEnergyPwOn()
 {
   return _modbusdataheidelberg.energy_power_on;
 }
 
 // Energy since Installation in VAh
-int HeidelbergInterface::getEnergyInst()
+uint32_t HeidelbergInterface::getEnergyInst()
 {
   return _modbusdataheidelberg.energy_since_installation;
 }
@@ -202,7 +213,14 @@ int HeidelbergInterface::getMaxCurr()
 // Set software configured maximal current in A [0; 6 to 16]
 bool HeidelbergInterface::setMaxCurr(int current)
 {
-  return 0;
+  if (current == 0 || (current >= 6 && current <= 16)){
+    _modbus.setTransmitBuffer(0, current*10);
+    uint8_t _write_response = _modbus.writeMultipleRegisters(261, 1);
+    if (_write_response == _modbus.ku8MBSuccess) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // FailSafe Current configuration (in case loss of Modbus communication) in A [0; 6 to 16]
@@ -214,10 +232,12 @@ int HeidelbergInterface::getFsCurr()
 // Set FailSafe Current configuration (in case loss of Modbus communication) in A [0; 6 to 16]
 bool HeidelbergInterface::setFsCurr(int current)
 {
-  _modbus.setTransmitBuffer(0, current);
-  uint8_t _write_response = _modbus.writeMultipleRegisters(262, 1);
-  if (_write_response == modbus.ku8MBSuccess) {
-    return true;
+  if (current == 0 || (current >= 6 && current <= 16)){
+    _modbus.setTransmitBuffer(0, current*10);
+    uint8_t _write_response = _modbus.writeMultipleRegisters(262, 1);
+    if (_write_response == _modbus.ku8MBSuccess) {
+      return true;
+    }
   }
   return false;
 }
@@ -225,9 +245,11 @@ bool HeidelbergInterface::setFsCurr(int current)
 void HeidelbergInterface::preTransmission()
 {
   digitalWrite(_pinDE, 1);
+  _serialDebug->println("[DEBUG] pretransmission");
 }
 
 void HeidelbergInterface::postTransmission()
 {
   digitalWrite(_pinDE, 0);
+  _serialDebug->println("[DEBUG] posttransmission");
 }

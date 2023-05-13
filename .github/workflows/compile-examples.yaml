@@ -1,16 +1,10 @@
 name: Compile Examples
 
-on:
-  pull_request:
-    paths:
-      - ".github/workflows/compile-examples.yml"
-      - "examples/**"
-      - "src/**"
-  push:
-    paths:
-      - ".github/workflows/compile-examples.yml"
-      - "examples/**"
-      - "src/**"
+on: [push, pull_request]
+paths:
+  - ".github/workflows/compile-examples.yml"
+  - "examples/**"
+  - "src/**"
 
 jobs:
   build:

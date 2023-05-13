@@ -18,7 +18,6 @@ class HeidelbergInterface
     void mbloop();
     uint32_t getLastUpdateTime();
 
-
     int getRegLayoutVersion();
     int getChgState();
     
@@ -48,6 +47,12 @@ class HeidelbergInterface
     int getFsCurr();
     bool setFsCurr(int current);
 
+    int getRemoteLock();
+    bool setRemoteLock(int state);
+
+    int getStandbyCtrl();
+    bool setStandbyCtrl(int state);
+
   private:
     void preTransmission();
     void postTransmission();
@@ -71,6 +76,8 @@ class HeidelbergInterface
       float currentL1, currentL2, currentL3;
       bool extern_lock;
       int power;
+      int remote_lock;
+      int standby;
       
       uint32_t energy_power_on, energy_since_installation;
       

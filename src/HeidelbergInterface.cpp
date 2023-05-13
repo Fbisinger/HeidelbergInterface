@@ -56,10 +56,15 @@ bool HeidelbergInterface::setUpdateRate(int timespan)
 void HeidelbergInterface::mbloop()
 {
   if ((millis() > _lastMsg + _updateRate) && _commAllowed){
-    //do mb stuff
+    bool res_input_reg_1 = false;
+    bool res_input_reg_2 = false;
+    bool res_holding_reg = false;
+    // do mb stuff
+    
+    // read input registers block 1
     _modbusBuffer = _modbus.readInputRegisters(4, 15);
     
-    delay(1000);
+    delay(500);
 
     if (_modbusBuffer == _modbus.ku8MBSuccess)   {
       _modbusdataheidelberg.register_layout = _modbus.getResponseBuffer(0);
@@ -75,24 +80,57 @@ void HeidelbergInterface::mbloop()
       _modbusdataheidelberg.power = _modbus.getResponseBuffer(10);
       _modbusdataheidelberg.energy_power_on = _modbus.getResponseBuffer(11) << 16 | _modbus.getResponseBuffer(12); // combined from two separate registers
       _modbusdataheidelberg.energy_since_installation = _modbus.getResponseBuffer(13) << 16 | _modbus.getResponseBuffer(14); // combined from two separate registers
-      _serialDebug->print("[DEBUG] Energy pwron High byte, Low byte");
-      _serialDebug->print(_modbus.getResponseBuffer(11));
-      _serialDebug->print(",");
-      _serialDebug->println(_modbus.getResponseBuffer(12));
-      _serialDebug->print("[DEBUG] Energy inst High byte, Low byte");
-      _serialDebug->print(_modbus.getResponseBuffer(13));
-      _serialDebug->print(",");
-      _serialDebug->println(_modbus.getResponseBuffer(14));
-      _serialDebug->println("[DEBUG] Buffer update sucessful");
-      // Update message time
-      _lastMsg = millis();
+
+      res_input_reg = true;
     }
 
     else{
-        _serialDebug->print("[ERROR] Failed reading Input registers, result code: ");
-        _serialDebug->print(_modbusBuffer);
+        _serialDebug->print("[ERROR] Failed reading Heidelberg WB Input registers block 1, result code: ");
+        _serialDebug->println(_modbusBuffer);
     }
 
+    // read input registers block 2
+    _modbusBuffer = _modbus.readInputRegisters(100, 2);
+    
+    delay(500);
+
+    if (_modbusBuffer == _modbus.ku8MBSuccess)   {
+      _modbusdataheidelberg.hw_max_current = _modbus.getResponseBuffer(0);
+      _modbusdataheidelberg.hw_min_current = _modbus.getResponseBuffer(1);
+
+      res_input_reg_2 = true;
+    }
+
+    else{
+        _serialDebug->print("[ERROR] Failed reading Heidelberg WB Input registers block 2, result code: ");
+        _serialDebug->println(_modbusBuffer);
+    }
+
+    // read holding registers
+    _modbusBuffer = modbus.readHoldingRegisters(257, 6);
+
+    delay(500);
+
+    if (_modbusBuffer == _modbus.ku8MBSuccess)   {
+        _modbusdataheidelberg.watchdog = modbus.getResponseBuffer(0);
+        _modbusdataheidelberg.standby = modbus.getResponseBuffer(1);
+        _modbusdataheidelberg.remote_lock = modbus.getResponseBuffer(2);
+        _modbusdataheidelberg.max_current = modbus.getResponseBuffer(4) / 10;
+        _modbusdataheidelberg.fs_current = modbus.getResponseBuffer(5) / 10;
+
+        res_holding_reg = true;
+    }
+
+    else{
+        _serialDebug->print("[ERROR] Failed reading Heidelberg WB Holding registers, result code: ");
+        _serialDebug->println(_modbusBuffer);
+    }
+
+    if(res_input_reg_1 == true && res_input_reg_2 == true && res_holding_reg == true){
+      // Update last successful message timestamp if reading of input and holding registers was ok
+      _lastMsg = millis();
+    }
+    
     //Otherwise retry in next loop iteration
   }
 }
@@ -201,7 +239,17 @@ int HeidelbergInterface::getWatchDogTimeout()
 // Set ModBus-Master WatchDog Timeout in ms
 bool HeidelbergInterface::setWatchdogTimeout(int timeout)
 {
-  return 0;
+  if (timeout >= 0 && timeout <= 65536){
+    _modbus.setTransmitBuffer(0, timeout);
+    uint8_t _write_response = _modbus.writeMultipleRegisters(257, 1);
+    if (_write_response == _modbus.ku8MBSuccess) {
+      return true;
+    }
+    _serialDebug->print("[ERROR] Failed writing Heidelberg WB holding register, result code: ");
+    _serialDebug->println(_write_response);
+  }
+  _serialDebug->print("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
+  return false;
 }
 
 // Software configured maximal current in A [0; 6 to 16]
@@ -219,7 +267,10 @@ bool HeidelbergInterface::setMaxCurr(int current)
     if (_write_response == _modbus.ku8MBSuccess) {
       return true;
     }
+    _serialDebug->print("[ERROR] Failed writing Heidelberg WB holding register, result code: ");
+    _serialDebug->println(_write_response);
   }
+  _serialDebug->print("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
   return false;
 }
 
@@ -238,7 +289,54 @@ bool HeidelbergInterface::setFsCurr(int current)
     if (_write_response == _modbus.ku8MBSuccess) {
       return true;
     }
+    _serialDebug->print("[ERROR] Failed writing Heidelberg WB holding register, result code: ");
+    _serialDebug->println(_write_response);
   }
+  _serialDebug->print("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
+  return false;
+}
+
+// Remote Lock status (only if extern lock unlocked), 0 = locked / 1= unlocked
+int HeidelbergInterface::getRemoteLock()
+{
+  return _modbusdataheidelberg.remote_lock;
+}
+
+// Set Remote Lock status (only if extern lock unlocked), 0 = locked / 1= unlocked
+bool HeidelbergInterface::setRemoteLock(int state)
+{
+  if (state == 0 || state == 1){
+    _modbus.setTransmitBuffer(0, state);
+    uint8_t _write_response = _modbus.writeMultipleRegisters(259, 1);
+    if (_write_response == _modbus.ku8MBSuccess) {
+      return true;
+    }
+    _serialDebug->print("[ERROR] Failed writing Heidelberg WB holding register, result code: ");
+    _serialDebug->println(_write_response);
+  }
+  _serialDebug->print("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
+  return false;
+}
+
+// Standby Function Control (Power Saving if no car plugged) 0 = enabled 4 = disabled
+int HeidelbergInterface::getStandbyCtrl()
+{
+  return _modbusdataheidelberg.standby;
+}
+
+// Set Standby Function Control (Power Saving if no car plugged) 0 = enabled 4 = disabled
+bool HeidelbergInterface::setStandbyCtrl(int state)
+{
+  if (state == 0 || state == 4){
+    _modbus.setTransmitBuffer(0, state);
+    uint8_t _write_response = _modbus.writeMultipleRegisters(258, 1);
+    if (_write_response == _modbus.ku8MBSuccess) {
+      return true;
+    }
+    _serialDebug->print("[ERROR] Failed writing Heidelberg WB holding register, result code: ");
+    _serialDebug->println(_write_response);
+  }
+  _serialDebug->print("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
   return false;
 }
 

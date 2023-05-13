@@ -1,3 +1,4 @@
 examples/basic/debug.cfg
 examples/basic/debug_custom.json
 examples/basic/esp32.svd
+*.tar.gz

@@ -20,7 +20,7 @@ jobs:
 
       matrix:
         board:
-          - fqbn: esp8266:esp8266
+          - fqbn: esp8266:esp8266:huzzah
             type: esp8266
           #- fqbn: esp32:esp32:esp32c3
           #  type: esp32

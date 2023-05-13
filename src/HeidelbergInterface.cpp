@@ -248,7 +248,9 @@ bool HeidelbergInterface::setWatchdogTimeout(int timeout)
     _serialDebug->print("[ERROR] Failed writing Heidelberg WB holding register, result code: ");
     _serialDebug->println(_write_response);
   }
-  _serialDebug->print("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
+  else{
+  _serialDebug->println("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
+  }
   return false;
 }
 
@@ -270,7 +272,9 @@ bool HeidelbergInterface::setMaxCurr(int current)
     _serialDebug->print("[ERROR] Failed writing Heidelberg WB holding register, result code: ");
     _serialDebug->println(_write_response);
   }
-  _serialDebug->print("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
+  else{
+  _serialDebug->println("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
+  }
   return false;
 }
 
@@ -292,7 +296,9 @@ bool HeidelbergInterface::setFsCurr(int current)
     _serialDebug->print("[ERROR] Failed writing Heidelberg WB holding register, result code: ");
     _serialDebug->println(_write_response);
   }
-  _serialDebug->print("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
+  else{
+  _serialDebug->println("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
+  }
   return false;
 }
 
@@ -314,7 +320,9 @@ bool HeidelbergInterface::setRemoteLock(int state)
     _serialDebug->print("[ERROR] Failed writing Heidelberg WB holding register, result code: ");
     _serialDebug->println(_write_response);
   }
-  _serialDebug->print("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
+  else{
+  _serialDebug->println("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
+  }
   return false;
 }
 
@@ -336,7 +344,9 @@ bool HeidelbergInterface::setStandbyCtrl(int state)
     _serialDebug->print("[ERROR] Failed writing Heidelberg WB holding register, result code: ");
     _serialDebug->println(_write_response);
   }
-  _serialDebug->print("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
+  else{
+  _serialDebug->println("[WARNING] Invalid function call, will not perform Modbus register update. Check documentation!");
+  }
   return false;
 }
 

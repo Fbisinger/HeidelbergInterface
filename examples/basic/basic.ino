@@ -32,8 +32,12 @@ void setup()
   interface.begin(*serial, SLAVE_ID_HEIDELBERG, MAX485_DE);
 
   delay(2000);
-  bool error = interface.setMaxCurr(16);
-  Serial.println(error);
+
+  // directly set maximal charging current
+  if(interface.setMaxCurr(16)){ // (every set command returns false if writing fails)
+    Serial.println("New charging current: 16A");
+  }
+  
   
 }
 

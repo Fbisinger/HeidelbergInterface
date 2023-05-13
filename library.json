@@ -1,0 +1,24 @@
+{
+    "name": "HeidelbergInterface",
+    "version": "1.0.0",
+    "description": "Arduino Library to communicate with Heidelberg Wallbox Energy Control via Modbus RTU. Supports reading and writing of several Input and Holding Registers to control the Wallbox externallay.",
+    "keywords": "wallbox, modbus, heidelberg, energy, control",
+    "repository":
+    {
+      "type": "git",
+      "url": "https://github.com/Fbisinger/HeidelbergInterface.git"
+    },
+    "authors":
+    [
+      {
+        "name": "F.Bisinger"
+      }
+    ],
+    "license": "MIT",
+    "dependencies": {
+      "plerup/EspSoftwareSerial": "~6.16.1",
+      "4-20ma/ModbusMaster": "~2.0.1"
+    },
+    "frameworks": "arduino",
+    "platforms": ["espressif32", "espressif8266"]
+  }

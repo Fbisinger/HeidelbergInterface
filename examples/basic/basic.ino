@@ -39,9 +39,10 @@ void setup()
 
 void loop()
 {
+  // must be called to keep the modbus data buffer updated 
   interface.mbloop();
   
-  // Prints current wallbox paramters, see functon definition below. 
+  // Prints current wallbox paramters, see function definition below. 
   // For detailed library capabilities have a look at src/HeidelbergInterface.h
   printStatus();
 

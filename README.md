@@ -5,3 +5,5 @@ HeidelbergInterface is a universal Arduino library for communication with the He
 
 ## Notice
 All functions rely on Modbus register layout versions >= V1.0.8 if you are using older versions some function, e.g. remote lock will not work properly! You can retrieve your reg layout version with `getRegLayoutVersion()`.
+
+:de: © F.Bisinger 2023

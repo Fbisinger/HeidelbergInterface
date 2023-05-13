@@ -81,7 +81,7 @@ void HeidelbergInterface::mbloop()
       _modbusdataheidelberg.energy_power_on = _modbus.getResponseBuffer(11) << 16 | _modbus.getResponseBuffer(12); // combined from two separate registers
       _modbusdataheidelberg.energy_since_installation = _modbus.getResponseBuffer(13) << 16 | _modbus.getResponseBuffer(14); // combined from two separate registers
 
-      res_input_reg = true;
+      res_input_reg_1 = true;
     }
 
     else{
@@ -107,16 +107,16 @@ void HeidelbergInterface::mbloop()
     }
 
     // read holding registers
-    _modbusBuffer = modbus.readHoldingRegisters(257, 6);
+    _modbusBuffer = _modbus.readHoldingRegisters(257, 6);
 
     delay(500);
 
     if (_modbusBuffer == _modbus.ku8MBSuccess)   {
-        _modbusdataheidelberg.watchdog = modbus.getResponseBuffer(0);
-        _modbusdataheidelberg.standby = modbus.getResponseBuffer(1);
-        _modbusdataheidelberg.remote_lock = modbus.getResponseBuffer(2);
-        _modbusdataheidelberg.max_current = modbus.getResponseBuffer(4) / 10;
-        _modbusdataheidelberg.fs_current = modbus.getResponseBuffer(5) / 10;
+        _modbusdataheidelberg.watchdog = _modbus.getResponseBuffer(0);
+        _modbusdataheidelberg.standby = _modbus.getResponseBuffer(1);
+        _modbusdataheidelberg.remote_lock = _modbus.getResponseBuffer(2);
+        _modbusdataheidelberg.max_current = _modbus.getResponseBuffer(4) / 10;
+        _modbusdataheidelberg.fs_current = _modbus.getResponseBuffer(5) / 10;
 
         res_holding_reg = true;
     }

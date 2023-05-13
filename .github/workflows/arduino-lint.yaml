@@ -1,3 +1,4 @@
+name: Arduino library compliance (Lint)
 on: [push, pull_request]
 jobs:
   lint:

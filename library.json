@@ -1,7 +1,7 @@
 {
     "name": "HeidelbergInterface",
     "version": "1.0.0",
-    "description": "Arduino Library to communicate with Heidelberg Wallbox Energy Control via Modbus RTU. Supports reading and writing of several Input and Holding Registers to control the Wallbox externallay.",
+    "description": "Arduino Library to communicate with Heidelberg Wallbox Energy Control via Modbus RTU. Supports reading and writing of several Input and Holding Registers to control the Wallbox externally.",
     "keywords": "wallbox, modbus, heidelberg, energy, control",
     "repository":
     {

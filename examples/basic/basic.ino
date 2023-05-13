@@ -17,7 +17,7 @@
 SoftwareSerial *serial;
 HeidelbergInterface interface;
 
-int counter = 0;
+// For demo wallbox charge control
 bool toggle_1 = true;
 bool toggle_2 = true;
 
@@ -40,7 +40,37 @@ void setup()
 void loop()
 {
   interface.mbloop();
+  
+  // Prints current wallbox paramters, see functon definition below. 
+  // For detailed library capabilities have a look at src/HeidelbergInterface.h
+  printStatus();
 
+  // Disable energy flow after 60s
+  if((millis() >= 60000) && (toggle_1 == true)){
+    Serial.println("Stopping to charge in 10s ...");
+    delay(10000);
+    if(interface.setMaxCurr(0)){
+      toggle_1 = false;
+    }
+    
+  }
+
+  // Set charging current to 6A after 120s
+  if((millis() >= 120000) && (toggle_2 == true)){
+    Serial.println("Setting to 6A charging current in 10s ...");
+    delay(10000);
+    if(interface.setMaxCurr(6)){
+      toggle_2 = false;
+    }
+    
+  }
+
+  delay(1000);
+}
+
+
+
+void printStatus() {
   Serial.print("Modbus Register Layout Version: ");
   Serial.println(interface.getRegLayoutVersion(), HEX);
 
@@ -50,6 +80,9 @@ void loop()
   Serial.print(interface.getLastUpdateTime());
   Serial.print(" | ");
   Serial.println(millis() - interface.getLastUpdateTime());
+
+  Serial.print("Charging State (2=A1 3=A2 4=B1 5=B2 6=C1 7=C2 8=derating 9=E 10=F 11=ERR): ");
+  Serial.println(interface.getChgState());
 
   Serial.print("Current Power: ");
   Serial.println(interface.getPower());
@@ -65,32 +98,7 @@ void loop()
   Serial.println(interface.getCurrL2());
   Serial.print("L3 Current: ");
   Serial.println(interface.getCurrL3());
-
-  Serial.println("Charging State (2=A1 3=A2 4=B1 5=B2 6=C1 7=C2 8=derating 9=E 10=F 11=ERR): " + String(interface.getChgState()));
-  Serial.println("PCB-Temp: " + String(interface.getPcbTemp()));
-  Serial.println("Voltage (L1,L2,L3): " + String(interface.getVoltageL1()) + " " + String(interface.getVoltageL2()) + " " + String(interface.getVoltageL3()));
-  Serial.println("External Lock: " + String(interface.getExtLockState()));
-  Serial.println("WD-Timeout (ms): " + String(interface.getWatchDogTimeout()));
-  Serial.println("MAX-Current: " + String(interface.getMaxCurr()));
-  Serial.println("FS-Current: " + String(interface.getFsCurr()));
-
-  if((millis() >= 50000) && (toggle_1 == true)){
-    Serial.println("Stop Charging in 10s");
-    delay(10000);
-    interface.setMaxCurr(0);
-    toggle_1 = false;
-    }
-
-  if((millis() >= 100000) && (toggle_2 == true)){
-    Serial.println("Setting to 6A in 20s");
-    delay(20000);
-    interface.setMaxCurr(6);
-    toggle_2 = false;
-    }
-
-  
-  
-
-
-  delay(1000);
+  /*
+  MORE FUNCTIONS AVAILABLE!, SEE src/HeidelbergInterface.h
+  */
 }

@@ -13,8 +13,36 @@ HeidelbergInterface	KEYWORD1
 #######################################
 
 begin	KEYWORD2
-getRegLayoutVersion	KEYWORD2
+enableCom	KEYWORD2
+disableCom	KEYWORD2
+setUpdateRate	KEYWORD2
+mbloop	KEYWORD2
 getLastUpdateTime	KEYWORD2
+getRegLayoutVersion	KEYWORD2
+getChgState	KEYWORD2
+getCurrL1	KEYWORD2
+getCurrL2	KEYWORD2
+getCurrL3	KEYWORD2
+getPcbTemp	KEYWORD2
+getVoltageL1	KEYWORD2
+getVoltageL2	KEYWORD2
+getVoltageL3	KEYWORD2
+getExtLockState	KEYWORD2
+getPower	KEYWORD2
+getEnergyPwOn	KEYWORD2
+getEnergyInst	KEYWORD2
+getHwMaxCurr	KEYWORD2
+getHwMinCurr	KEYWORD2
+getWatchDogTimeout	KEYWORD2
+setWatchdogTimeout	KEYWORD2
+getMaxCurr	KEYWORD2
+setMaxCurr	KEYWORD2
+getFsCurr	KEYWORD2
+setFsCurr	KEYWORD2
+getRemoteLock	KEYWORD2
+setRemoteLock	KEYWORD2
+getStandbyCtrl	KEYWORD2
+setStandbyCtrl	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

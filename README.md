@@ -47,6 +47,10 @@ void loop()
   delay(5000);
 }
 ```
+## Development ToDos
+- [x] Basic WB communication
+- [ ] Allow other RS485/Modbus devices on the same bus
+- [ ] Multiple WB clients support
 
 ## Dependencies
 - [EspSoftwareSerial](https://github.com/plerup/espsoftwareserial)

@@ -58,7 +58,8 @@ If you are working with different Modbus clients, especially with different comm
 ## Dependencies
 - [EspSoftwareSerial](https://github.com/plerup/espsoftwareserial)
 - [ModbusMaster](https://github.com/4-20ma/ModbusMaster)
+
 ## Notice
-All functions rely on Modbus register layout versions >= V1.0.8 if you are using older versions some function, e.g. remote lock will not work properly! You can retrieve your reg layout version with `getRegLayoutVersion()`.
+All functions rely on Modbus register layout versions >= V1.0.8 if you are using older versions some function, e.g. remote lock will not work properly! You can retrieve your reg layout version with `getRegLayoutVersion()`. To see what features might be supported for your version have a look at the official [datasheet](/doc/ModBus-Register-Tabelle.pdf).
 
 :de: © F.Bisinger 2023

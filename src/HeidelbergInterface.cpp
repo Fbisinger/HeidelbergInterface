@@ -244,7 +244,7 @@ int HeidelbergInterface::getWatchDogTimeout()
 // Set ModBus-Master WatchDog Timeout in ms
 bool HeidelbergInterface::setWatchdogTimeout(int timeout)
 {
-  if (timeout >= 0 && timeout <= 65536){
+  if (timeout >= 0 && timeout <= 65536 && _commAllowed){
     _modbus.setTransmitBuffer(0, timeout);
     uint8_t _write_response = _modbus.writeMultipleRegisters(257, 1);
     if (_write_response == _modbus.ku8MBSuccess) {
@@ -268,7 +268,7 @@ int HeidelbergInterface::getMaxCurr()
 // Set software configured maximal current in A [0; 6 to 16]
 bool HeidelbergInterface::setMaxCurr(int current)
 {
-  if (current == 0 || (current >= 6 && current <= 16)){
+  if ((current == 0 || (current >= 6 && current <= 16)) && _commAllowed){
     _modbus.setTransmitBuffer(0, current*10);
     uint8_t _write_response = _modbus.writeMultipleRegisters(261, 1);
     if (_write_response == _modbus.ku8MBSuccess) {
@@ -292,7 +292,7 @@ int HeidelbergInterface::getFsCurr()
 // Set FailSafe Current configuration (in case loss of Modbus communication) in A [0; 6 to 16]
 bool HeidelbergInterface::setFsCurr(int current)
 {
-  if (current == 0 || (current >= 6 && current <= 16)){
+  if ((current == 0 || (current >= 6 && current <= 16)) && _commAllowed){
     _modbus.setTransmitBuffer(0, current*10);
     uint8_t _write_response = _modbus.writeMultipleRegisters(262, 1);
     if (_write_response == _modbus.ku8MBSuccess) {
@@ -316,7 +316,7 @@ int HeidelbergInterface::getRemoteLock()
 // Set Remote Lock status (only if extern lock unlocked), 0 = locked / 1= unlocked
 bool HeidelbergInterface::setRemoteLock(int state)
 {
-  if (state == 0 || state == 1){
+  if ((state == 0 || state == 1) && _commAllowed){
     _modbus.setTransmitBuffer(0, state);
     uint8_t _write_response = _modbus.writeMultipleRegisters(259, 1);
     if (_write_response == _modbus.ku8MBSuccess) {
@@ -340,7 +340,7 @@ int HeidelbergInterface::getStandbyCtrl()
 // Set Standby Function Control (Power Saving if no car plugged) 0 = enabled 4 = disabled
 bool HeidelbergInterface::setStandbyCtrl(int state)
 {
-  if (state == 0 || state == 4){
+  if ((state == 0 || state == 4) && _commAllowed){
     _modbus.setTransmitBuffer(0, state);
     uint8_t _write_response = _modbus.writeMultipleRegisters(258, 1);
     if (_write_response == _modbus.ku8MBSuccess) {

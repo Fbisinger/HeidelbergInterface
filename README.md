@@ -47,9 +47,12 @@ void loop()
   delay(5000);
 }
 ```
+## Other RS485/Modbus Clients on the same bus
+If you are working with different Modbus clients, especially with different communication speed or transmit configurations on the same hardwired bus, only one client/server configuration can be active at the same time. Therefor the library supports enabling or disabling the entire Modbus communication with `disableCom()` which stops polling of data from the registers and blocks any data being sent to the client. To reactivate communication simply call `enableCom()`.
+
 ## Development ToDos
 - [x] Basic WB communication
-- [ ] Allow other RS485/Modbus devices on the same bus
+- [x] Allow other RS485/Modbus devices on the same bus
 - [ ] Multiple WB clients support
 
 ## Dependencies

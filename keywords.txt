@@ -16,6 +16,7 @@ begin	KEYWORD2
 enableCom	KEYWORD2
 disableCom	KEYWORD2
 setUpdateRate	KEYWORD2
+getUpdateRate	KEYWORD2
 mbloop	KEYWORD2
 getLastUpdateTime	KEYWORD2
 getRegLayoutVersion	KEYWORD2

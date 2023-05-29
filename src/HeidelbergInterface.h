@@ -14,6 +14,7 @@ class HeidelbergInterface
     void begin(Stream &serial, int id, int pinDE);
     void enableCom();
     void disableCom();
+    int getUpdateRate();
     bool setUpdateRate(int timespan);
     void mbloop();
     uint32_t getLastUpdateTime();

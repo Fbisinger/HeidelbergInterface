@@ -42,6 +42,11 @@ void HeidelbergInterface::disableCom()
   _commAllowed = false;
 }
 
+int HeidelbergInterface::getUpdateRate()
+{
+  return _updateRate;
+}
+
 // Set Modbus data buffer refresh rate in milli seconds (updateRate must be >= 5000)
 bool HeidelbergInterface::setUpdateRate(int timespan)
 {
